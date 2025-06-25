@@ -1,0 +1,145 @@
+{
+    "lang": "fr",
+    "refs": [
+        {
+            "id": 921,
+            "key": "bones",
+            "label": "Os",
+            "sellingPoint": 700,
+            "isAlert": true
+        },
+        {
+            "id": 925,
+            "key": "cloth",
+            "label": "Rouleaux de tissu",
+            "sellingPoint": 9999,
+            "isAlert": false
+        },
+        {
+            "id": 929,
+            "key": "dust",
+            "label": "Poussière",
+            "sellingPoint": 1100,
+            "isAlert": true
+        },
+        {
+            "id": 933,
+            "key": "feathers",
+            "label": "Plumes",
+            "sellingPoint": 1200,
+            "isAlert": true
+        },
+        {
+            "id": 934,
+            "key": "fibers",
+            "label": "Fibres végétales",
+            "sellingPoint": 1200,
+            "isAlert": true
+        },
+        {
+            "id": 910,
+            "key": "hide",
+            "label": "Peaux tannées",
+            "sellingPoint": 9999,
+            "isAlert": false
+        },
+        {
+            "id": 946,
+            "key": "wood",
+            "label": "Panches de bois",
+            "sellingPoint": 9999,
+            "isAlert": false
+        },
+        {
+            "id": 948,
+            "key": "iron",
+            "label": "Lingots de fer",
+            "sellingPoint": 1100,
+            "isAlert": true
+        },
+        {
+            "id": 953,
+            "key": "scales",
+            "label": "Écailles",
+            "sellingPoint": 1600,
+            "isAlert": true
+        },
+        {
+            "id": 954,
+            "key": "chitin",
+            "label": "Chitine",
+            "sellingPoint": 9999,
+            "isAlert": false
+        },
+        {
+            "id": 955,
+            "key": "granite",
+            "label": "Granite",
+            "sellingPoint": 450,
+            "isAlert": true
+        },
+        {
+            "id": 926,
+            "key": "linen",
+            "label": "Rouleaux de lin",
+            "sellingPoint": 1200,
+            "isAlert": true
+        },
+        {
+            "id": 927,
+            "key": "damask",
+            "label": "Rouleaux de Damas",
+            "sellingPoint": 1700,
+            "isAlert": true
+        },
+        {
+            "id": 928,
+            "key": "silk",
+            "label": "Rouleaux de soie",
+            "sellingPoint": 9999,
+            "isAlert": false
+        },
+        {
+            "id": 939,
+            "key": "glassVial",
+            "label": "Fiole de verre",
+            "sellingPoint": 1100,
+            "isAlert": true
+        },
+        {
+            "id": 943,
+            "key": "elonianLeather",
+            "label": "Carré de cuir élonien",
+            "sellingPoint": 1200,
+            "isAlert": true
+        },
+        {
+            "id": 944,
+            "key": "ink",
+            "label": "Fiole d'encre",
+            "sellingPoint": 1500,
+            "isAlert": true
+        },
+        {
+            "id": 950,
+            "key": "deldrimor",
+            "label": "Acier de Deldrimor",
+            "sellingPoint": 2600,
+            "isAlert": true
+        },
+        {
+            "id": 952,
+            "key": "vellum",
+            "label": "Rouleau de vélin",
+            "sellingPoint": 1000,
+            "isAlert": true
+        },
+        {
+            "id": 956,
+            "key": "spiritwood",
+            "label": "Bois-esprit",
+            "sellingPoint": 9999,
+            "isAlert": false
+        }
+    ]
+}
