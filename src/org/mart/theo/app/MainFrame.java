@@ -58,6 +58,7 @@ public class MainFrame extends JFrame {
 	private JPanel container;
 	private JButton saveButton;
 	private JButton resetButton;
+	private JLabel lastUpdate;
 
 	public Map<String, Map<String, JComponent>> key2type2component = new HashMap<>();
 
@@ -80,10 +81,10 @@ public class MainFrame extends JFrame {
 
 		// ----------- header -----------
 		JPanel headerPanel = new JPanel();
-		headerPanel.setBorder(new EmptyBorder(20, 20, 20, 20));// top,left,bottom,right
+		headerPanel.setBorder(new EmptyBorder(20, 20, 0, 20));// top,left,bottom,right
 		headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.X_AXIS));
 		headerPanel.setVisible(true);
-		JLabel titleLabel = new JLabel("MatÈriaux");
+		JLabel titleLabel = new JLabel("Mat√©riaux");
 		titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
 		headerPanel.add(new JLabel(getScaledImage("/img/margrid.png", 0.2d)));
 		headerPanel.add(titleLabel);
@@ -93,7 +94,7 @@ public class MainFrame extends JFrame {
 		saveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int result = JOptionPane.showConfirmDialog(container, "Voulez-vous vraiment Ècraser la configuration ?",
+				int result = JOptionPane.showConfirmDialog(container, "Voulez-vous vraiment √©craser la configuration ?",
 						"Confirmation", JOptionPane.CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (result == JOptionPane.OK_OPTION) {
 					try {
@@ -104,12 +105,12 @@ public class MainFrame extends JFrame {
 				}
 			}
 		});
-		resetButton = new JButton("RÈinitialiser");
+		resetButton = new JButton("R√©initialiser");
 		resetButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int result = JOptionPane.showConfirmDialog(container,
-						"Voulez-vous vraiment rÈinitialiser la configuration ‡ son Ètat par dÈfaut ?", "Confirmation",
+						"Voulez-vous vraiment r√©initialiser la configuration √† son √©tat par d√©faut ?", "Confirmation",
 						JOptionPane.CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 				if (result == JOptionPane.OK_OPTION) {
 					try {
@@ -129,7 +130,7 @@ public class MainFrame extends JFrame {
 		JPanel bodyPanel = new JPanel();
 		bodyPanel.setLayout(new GridLayout(rows, columns));
 		bodyPanel.setVisible(true);
-		bodyPanel.setBorder(new EmptyBorder(0, 0, 20, 0));
+		bodyPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
 
 		// ----------- table header -----------
 		bodyPanel.add(new JLabel());
@@ -227,6 +228,15 @@ public class MainFrame extends JFrame {
 			key2type2component.get(key).put(ALERT_KEY, alertCheck);
 		}
 		container.add(bodyPanel);
+
+		JPanel updatedAtPanel = new JPanel();
+		updatedAtPanel.setVisible(true);
+		updatedAtPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
+		updatedAtPanel.add(new JLabel("Derni√®re mise √† jour :"));
+		lastUpdate = new JLabel();
+		updatedAtPanel.add(lastUpdate);
+		container.add(updatedAtPanel);
+
 		add(container);
 		pack();
 		setLocationRelativeTo(null);
@@ -238,6 +248,10 @@ public class MainFrame extends JFrame {
 		label.setForeground(color);
 		JTextArea prices = (JTextArea) App.frame.key2type2component.get(key).get(MainFrame.PRICES_KEY);
 		prices.setForeground(color);
+	}
+
+	public void changeUpdateDateLabel(String newDate) {
+		lastUpdate.setText(newDate);
 	}
 
 	public ImageIcon getScaledImage(String resourcePath, double scale) throws IOException {

@@ -50,8 +50,11 @@ public class AlertService extends Thread {
 		JSONObject fetchedData = fetcher.fetch();
 		// COMPARE WITH PURCHASE PRICE BECAUSE MORE DATA THAN SELLING PRICE
 
-		long updatedAt = fetchedData.getInt("updated_at");
-		logger.info("Updated at: " + updatedAt + " (" + new Date(updatedAt * 1000) + ")");
+		long updatedAtLong = fetchedData.getInt("updated_at");
+		Date updatedAt = new Date(updatedAtLong * 1000);
+		if (!updatedAt.equals(App.getLastUpdate()))
+			App.setLastUpdate(updatedAt);
+		logger.info("Updated at: " + updatedAtLong + " (" + updatedAt + ")");
 		JSONObject data = App.getData();
 		JSONArray refs = data.getJSONArray("refs");
 		List<String> toSell = new ArrayList<>();

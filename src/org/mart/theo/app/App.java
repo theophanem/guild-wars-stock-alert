@@ -11,6 +11,9 @@ import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -29,6 +32,8 @@ public class App {
 	private static JSONObject data = null;
 	public static MainFrame frame = null;
 	private static File workingDirectory;
+	private static Date lastUpdate = null;
+	public final static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY 'Ã ' HH:mm:ss", Locale.FRENCH);
 
 	public static void main(String[] args) throws IOException {
 		rootLogger = (Logger) LogManager.getRootLogger();
@@ -70,6 +75,15 @@ public class App {
 
 	public static void setData(JSONObject data) {
 		App.data = data;
+	}
+
+	public static Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public static void setLastUpdate(Date lastUpdate) {
+		App.lastUpdate = lastUpdate;
+		frame.changeUpdateDateLabel(sdf.format(lastUpdate));
 	}
 
 	public static void initTray() {
@@ -131,7 +145,7 @@ public class App {
 		}
 		frame.setFormChanged(false);
 
-		JOptionPane.showMessageDialog(frame, "Succès de la sauvegarde", "Configuration sauvegardée",
+		JOptionPane.showMessageDialog(frame, "SuccÃ¨s de la sauvegarde", "Configuration sauvegardÃ©e",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
@@ -177,7 +191,7 @@ public class App {
 		}
 		frame.setFormChanged(false);
 
-		JOptionPane.showMessageDialog(frame, "Succès de la réinitialisation", "Configuration réinitialisée",
+		JOptionPane.showMessageDialog(frame, "SuccÃ¨s de la rÃ©initialisation", "Configuration rÃ©initialisÃ©e",
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
