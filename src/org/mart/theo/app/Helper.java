@@ -4,11 +4,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class Helper {
-	public static JSONObject getMaterialFromKeyOrNull(JSONArray materials, String key) {
-		for (int i = 0; i < materials.length(); i++) {
-			JSONObject material = materials.getJSONObject(i);
-			if (key.equals(material.getString("key")))
-				return material;
+	public static JSONObject getJSONObjectFromKeyOrNull(JSONArray array, String key) {
+		for (int i = 0; i < array.length(); i++) {
+			JSONObject object = array.getJSONObject(i);
+			if (key.equals(object.getString("key")))
+				return object;
 		}
 		return null;
 	}

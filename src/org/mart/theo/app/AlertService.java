@@ -93,9 +93,9 @@ public class AlertService extends Thread {
 					+ (fetchedDataSell != null ? fetchedDataSell.getInt("p") : "n/a"));
 		}
 		if (!toSell.isEmpty()) {
-			String message = "C'est l'heure de vendre :\n";
+			String message = "C'est l'heure de vendre :";
 			for (String label : toSell)
-				message += "  - " + label + (toSell.indexOf(label) != (toSell.size() - 1) ? "\n" : "");
+				message += "\n - " + label;
 
 			App.tray.displayMessage("Guild Wars Stock Alert", message, MessageType.INFO);
 		}

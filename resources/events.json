@@ -1,0 +1,125 @@
+[
+        {
+            "key": "canthanNewYear",
+            "label": "Nouvel An Canthien",
+            "isMajor": true,
+			"hasInterestingItems": true,
+			"comments": "miniatures",
+            "link": "https://wiki.guildwars.com/wiki/Canthan_New_Year",
+            "from": "31/01",
+            "to": "07/02"
+        },
+        {
+            "key": "luckyTreatsWeek",
+            "label": "Semaine de la chance",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/Lucky_Treats_Week",
+            "from": "14/03",
+            "to": "21/03"
+        },
+        {
+            "key": "aprilFools",
+            "label": "Poisson d'avril",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/April_Fools%27_Day",
+            "from": "01/04",
+            "to": "02/04"
+        },
+        {
+            "key": "sweetTreatsWeek",
+            "label": "Semaine des délices sucrés",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/Sweet_Treats_Week",
+            "from": "10/04",
+            "to": "17/04"
+        },
+        {
+            "key": "anniversary",
+            "label": "Anniversaire de Guild Wars",
+            "isMajor": false,
+			"hasInterestingItems": true,
+			"comments": "armes et preuves de légende",
+            "link": "https://wiki.guildwars.com/wiki/Anniversary_Celebration",
+            "from": "22/04",
+            "to": "06/05"
+        },
+        {
+            "key": "dragonFestival",
+            "label": "Festival du Dragon",
+            "isMajor": true,
+			"hasInterestingItems": true,
+			"comments": "masques (chapeaux)",
+            "link": "https://wiki.guildwars.com/wiki/Dragon_Festival",
+            "from": "27/06",
+            "to": "04/07"
+        },
+        {
+            "key": "julyWintersday",
+            "label": "Hivernel en juillet",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/Wintersday_in_July",
+            "from": "24/07",
+            "to": "31/07"
+        },
+        {
+            "key": "wayfarersReverie",
+            "label": "Rêverie du voyageur",
+            "isMajor": false,
+			"hasInterestingItems": true,
+			"comments": "tonique, miniature",
+            "link": "https://wiki.guildwars.com/wiki/Wayfarer%27s_Reverie",
+            "from": "25/08",
+            "to": "01/09"
+        },
+        {
+            "key": "pirateWeek",
+            "label": "Semaine des Pirates",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/Pirate_Week",
+            "from": "13/09",
+            "to": "20/09"
+        },
+        {
+            "key": "breastCancer",
+            "label": "Mois de la lutte contre le cancer du sein",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/Breast_Cancer_Awareness_Month",
+            "from": "01/10",
+            "to": "31/10"
+        },
+        {
+            "key": "halloween",
+            "label": "Halloween",
+            "isMajor": true,
+			"hasInterestingItems": true,
+			"comments": "chapeaux",
+            "link": "https://wiki.guildwars.com/wiki/Halloween",
+            "from": "18/10",
+            "to": "02/11"
+        },
+        {
+            "key": "specialTreatsWeek",
+            "label": "Semaine des friandises spéciales",
+            "isMajor": false,
+			"hasInterestingItems": false,
+            "link": "https://wiki.guildwars.com/wiki/Special_Treats_Week",
+            "from": "21/11",
+            "to": "28/11"
+        },
+        {
+            "key": "wintersday",
+            "label": "Hivernel",
+            "isMajor": true,
+			"hasInterestingItems": true,
+			"comments": "chapeaux et wintergreen weapon (finale)",
+            "link": "https://wiki.guildwars.com/wiki/Wintersday",
+            "from": "19/12",
+            "to": "02/01"
+        }
+    ]

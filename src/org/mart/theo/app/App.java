@@ -3,6 +3,7 @@ package org.mart.theo.app;
 import java.awt.Image;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
+import java.awt.TrayIcon.MessageType;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -12,7 +13,10 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JCheckBox;
@@ -34,6 +38,7 @@ public class App {
 	private static File workingDirectory;
 	private static Date lastUpdate = null;
 	public final static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY 'à' HH:mm:ss", Locale.FRENCH);
+	private static List<JSONObject> currentEvents = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException {
 		rootLogger = (Logger) LogManager.getRootLogger();
@@ -55,6 +60,8 @@ public class App {
 
 		loadConfig();
 		initTray();
+		checkEvent();
+
 		frame = new MainFrame();
 
 		ServiceHandler serviceHandler = new ServiceHandler();
@@ -86,7 +93,7 @@ public class App {
 		frame.changeUpdateDateLabel(sdf.format(lastUpdate));
 	}
 
-	public static void initTray() {
+	private static void initTray() {
 		if (SystemTray.isSupported()) {
 			Image image = Toolkit.getDefaultToolkit().createImage(App.class.getResource("/img/margrid_64x64.png"));
 			tray = new TrayApp(image, "Guild Wars Stock Alert");
@@ -96,7 +103,7 @@ public class App {
 		}
 	}
 
-	public static void loadConfig() {
+	private static void loadConfig() {
 		try {
 			File configFile = new File(workingDirectory, "config.json");
 			if (configFile.createNewFile()) {
@@ -124,7 +131,7 @@ public class App {
 		for (int i = 0; i < refs.length(); i++) {
 			JSONObject ref = refs.getJSONObject(i);
 			String key = ref.getString("key");
-			JSONObject dataRef = Helper.getMaterialFromKeyOrNull(dataRefs, key);
+			JSONObject dataRef = Helper.getJSONObjectFromKeyOrNull(dataRefs, key);
 			Integer sellingPoint = !JSONObject.NULL.equals(dataRef.get("sellingPoint")) ? dataRef.getInt("sellingPoint")
 					: null;
 			ref.put("sellingPoint", sellingPoint != null ? sellingPoint : JSONObject.NULL);
@@ -160,8 +167,8 @@ public class App {
 		for (int i = 0; i < refs.length(); i++) {
 			JSONObject ref = refs.getJSONObject(i);
 			String key = ref.getString("key");
-			JSONObject defaultRef = Helper.getMaterialFromKeyOrNull(defaultConfig.getJSONArray("refs"), key);
-			JSONObject dataRef = Helper.getMaterialFromKeyOrNull(dataRefs, key);
+			JSONObject defaultRef = Helper.getJSONObjectFromKeyOrNull(defaultConfig.getJSONArray("refs"), key);
+			JSONObject dataRef = Helper.getJSONObjectFromKeyOrNull(dataRefs, key);
 			Integer sellingPoint = !JSONObject.NULL.equals(defaultRef.get("sellingPoint"))
 					? defaultRef.getInt("sellingPoint")
 					: null;
@@ -198,6 +205,49 @@ public class App {
 	public static void showErrorWindowAndExitApp(String message) {
 		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 		System.exit(0);
+	}
+
+	private static void checkEvent() throws IOException {
+		InputStream is = App.class.getResourceAsStream("/events.json");
+		String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+		JSONArray events = new JSONArray(content);
+		Calendar today = Calendar.getInstance();
+		int currentYear = today.get(Calendar.YEAR);
+		for (int i = 0; i < events.length(); i++) {
+			JSONObject event = events.getJSONObject(i);
+			Calendar from = Calendar.getInstance();
+			Calendar to = Calendar.getInstance();
+			String[] fromDayAndMonth = event.getString("from").split("/");
+			String[] toDayAndMonth = event.getString("to").split("/");
+
+			if ("wintersday".equals(event.getString("key"))) {
+				int currentMonth = today.get(Calendar.MONTH);
+				from.set(currentMonth == 0 ? currentYear - 1 : currentYear, Integer.parseInt(fromDayAndMonth[1]) - 1,
+						Integer.parseInt(fromDayAndMonth[0]), 0, 0, 0);
+				to.set(currentMonth == 0 ? currentYear : currentYear + 1, Integer.parseInt(toDayAndMonth[1]) - 1,
+						Integer.parseInt(toDayAndMonth[0]), 23, 59, 59);
+			} else {
+				from.set(currentYear, Integer.parseInt(fromDayAndMonth[1]) - 1, Integer.parseInt(fromDayAndMonth[0]), 0,
+						0, 0);
+				to.set(currentYear, Integer.parseInt(toDayAndMonth[1]) - 1, Integer.parseInt(toDayAndMonth[0]), 23, 59,
+						59);
+			}
+
+			if (from.before(today) && today.before(to))
+				currentEvents.add(event);
+		}
+
+		if (currentEvents.size() > 0) {
+			if (currentEvents.size() == 1)
+				tray.displayMessage("Guild Wars Event Alert",
+						"Évènement en cours : " + currentEvents.get(0).getString("label"), MessageType.INFO);
+			else {
+				String message = "Évènements en cours :";
+				for (JSONObject e : currentEvents)
+					message += "\n - " + e.getString("label");
+				tray.displayMessage("Guild Wars Event Alert", message, MessageType.INFO);
+			}
+		}
 	}
 
 }
