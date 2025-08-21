@@ -59,17 +59,22 @@ public class MainFrame extends JFrame {
 	private JButton saveButton;
 	private JButton resetButton;
 	private JLabel lastUpdate;
+	private EventsPopup eventsPopup;
 
 	public Map<String, Map<String, JComponent>> key2type2component = new HashMap<>();
 
 	public MainFrame() throws IOException {
+		super("Guild Wars Stock Alert");
 		initialize();
+	}
+
+	public EventsPopup getEventsPopup() {
+		return eventsPopup;
 	}
 
 	public void initialize() throws IOException {
 		JSONArray refs = App.getData().getJSONArray("refs");
 		setIconImage(new ImageIcon(App.class.getResource("/img/margrid_64x64.png")).getImage());
-		setTitle("Guild Wars Stock Alert");
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 //		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -238,8 +243,12 @@ public class MainFrame extends JFrame {
 		container.add(updatedAtPanel);
 
 		add(container);
+		setJMenuBar(new MenuBar());
+
 		pack();
 		setLocationRelativeTo(null);
+
+		eventsPopup = new EventsPopup(this);
 //		setVisible(true);
 	}
 

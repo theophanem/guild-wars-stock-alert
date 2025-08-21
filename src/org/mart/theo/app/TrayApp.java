@@ -36,7 +36,6 @@ public class TrayApp extends TrayIcon {
 			mi.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					tray.remove(trayIcon);
 					System.exit(0);
 				}
 			});
