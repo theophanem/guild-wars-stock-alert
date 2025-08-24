@@ -44,6 +44,8 @@ public class MainFrame extends JFrame {
 	public static final int MAX_INPUT_CHARACTERS = 4;
 	public static final Color GREEN_TEXT = new Color(0, 175, 0);
 	public static final Color REGULAR_TEXT = new Color(51, 51, 51);
+	public static final Font HEADER_FONT = new Font("Arial", Font.BOLD, 14);
+	public static final Font CELL_FONT = new Font("Arial", Font.PLAIN, 14);
 	private boolean formChanged = false;
 
 	public boolean isFormChanged() {
@@ -140,16 +142,16 @@ public class MainFrame extends JFrame {
 		// ----------- table header -----------
 		bodyPanel.add(new JLabel());
 		JLabel materialLabel = new JLabel("Type");
-		materialLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		materialLabel.setFont(HEADER_FONT);
 		bodyPanel.add(materialLabel);
 		JLabel pricesLabel = new JLabel("Prix");
-		pricesLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		pricesLabel.setFont(HEADER_FONT);
 		bodyPanel.add(pricesLabel);
 		JLabel sellingPointLabel = new JLabel("Seuil de vente");
-		sellingPointLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		sellingPointLabel.setFont(HEADER_FONT);
 		bodyPanel.add(sellingPointLabel);
 		JLabel alertLabel = new JLabel("Alerte");
-		alertLabel.setFont(new Font("Arial", Font.BOLD, 14));
+		alertLabel.setFont(HEADER_FONT);
 		bodyPanel.add(alertLabel);
 
 		// ----------- table body -----------
@@ -161,7 +163,7 @@ public class MainFrame extends JFrame {
 
 			JLabel name = new JLabel(ref.getString("label"));
 			name.setName(key);
-			name.setFont(new Font("Arial", Font.PLAIN, 14));
+			name.setFont(CELL_FONT);
 			bodyPanel.add(name);
 			key2type2component.put(key, new HashMap<String, JComponent>());
 			key2type2component.get(key).put(LABEL_KEY, name);
@@ -169,7 +171,7 @@ public class MainFrame extends JFrame {
 			JTextArea prices = new JTextArea("A : " + "\nV : ");
 			prices.setEditable(false);
 			prices.setOpaque(false);
-			prices.setFont(new Font("Arial", Font.PLAIN, 14));
+			prices.setFont(CELL_FONT);
 			bodyPanel.add(prices);
 			key2type2component.get(key).put(PRICES_KEY, prices);
 

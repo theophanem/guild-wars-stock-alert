@@ -17,7 +17,9 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -42,12 +44,12 @@ import org.json.JSONObject;
 
 public class EventsPopup extends JDialog {
 	private static final long serialVersionUID = 1769123847007113831L;
-	public static final Color GREEN_TEXT = new Color(0, 175, 0);
-	public static final Color REGULAR_TEXT = new Color(51, 51, 51);
+	public static final Color GREEN_BACKGROUND = new Color(127, 201, 127);
 	public static final Color LINK_TEXT = new Color(0, 0, 238);
 	public static final Color LINK_CLICK_TEXT = new Color(255, 0, 0);
-	public static final Font CELL_FONT = new Font("Arial", Font.PLAIN, 14);
 	private boolean formChanged = false;
+
+	private List<String> rowsToHighlight = new ArrayList<>();
 
 	public boolean isFormChanged() {
 		return formChanged;
@@ -136,6 +138,9 @@ public class EventsPopup extends JDialog {
 		container.add(headerPanel);
 		add(container);
 
+		for (JSONObject currentEvent : App.getCurrentEvents())
+			rowsToHighlight.add(currentEvent.getString("key"));
+
 		EventTableModel model = new EventTableModel();
 		for (int i = 0; i < events.length(); i++) {
 			JSONObject event = events.getJSONObject(i);
@@ -152,15 +157,17 @@ public class EventsPopup extends JDialog {
 		table.setShowGrid(false);
 		table.setCellSelectionEnabled(false);
 		table.setRowHeight(30);
-		table.setFont(CELL_FONT);
+		table.setFont(MainFrame.CELL_FONT);
 		table.setBackground(null);
+		table.getTableHeader().setReorderingAllowed(false);
 		TableColumnModel columnModel = table.getColumnModel();
-		columnModel.getColumn(0).setCellRenderer(new EventTableCellRenderer());
-		columnModel.getColumn(1).setCellRenderer(new EventTableCellRenderer());
-		columnModel.getColumn(2).setCellRenderer(new EventTableCellRenderer());
-		columnModel.getColumn(3).setCellRenderer(new EventTableCellRenderer());
-		columnModel.getColumn(4).setCellRenderer(new EventTableCellRenderer());
-		columnModel.getColumn(5).setCellRenderer(new EventTableCellRenderer());
+		EventTableCellRenderer cellRenderer = new EventTableCellRenderer();
+		columnModel.getColumn(0).setCellRenderer(cellRenderer);
+		columnModel.getColumn(1).setCellRenderer(cellRenderer);
+		columnModel.getColumn(2).setCellRenderer(cellRenderer);
+		columnModel.getColumn(3).setCellRenderer(cellRenderer);
+		columnModel.getColumn(4).setCellRenderer(cellRenderer);
+		columnModel.getColumn(5).setCellRenderer(cellRenderer);
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
 				int row = table.getSelectedRow();
@@ -194,7 +201,7 @@ public class EventsPopup extends JDialog {
 		columnModel.getColumn(5).setPreferredWidth(50);
 
 		JScrollPane scrollPane = new JScrollPane(table);
-		scrollPane.setPreferredSize(new Dimension(570, 30 * rows));
+		scrollPane.setPreferredSize(new Dimension(570, 30 * rows - 7));
 		table.setFillsViewportHeight(true);
 		container.setBorder(new EmptyBorder(20, 20, 20, 20));
 		container.add(scrollPane);
@@ -258,12 +265,14 @@ public class EventsPopup extends JDialog {
 		@Override
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 				int row, int col) {
+			JSONObject event = events.getJSONObject(row);
+			boolean toHighlight = rowsToHighlight.contains(event.getString("key"));
 			if (value instanceof String) {
 				JLabel l = new JLabel((String) value);
-				l.setFont(CELL_FONT);
+				l.setFont(MainFrame.CELL_FONT);
 				l.setBorder(new EmptyBorder(0, 5, 0, 0));
 				if (col == 0) {
-					l.setToolTipText(events.getJSONObject(row).getString("link"));
+					l.setToolTipText(event.getString("link"));
 					Font font = l.getFont();
 					Map<TextAttribute, Object> attributes = new HashMap<>(font.getAttributes());
 					attributes.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
@@ -273,6 +282,12 @@ public class EventsPopup extends JDialog {
 					else
 						l.setForeground(LINK_TEXT);
 				}
+
+				if (toHighlight) {
+					l.setBackground(GREEN_BACKGROUND);
+					l.setOpaque(true);
+				}
+
 				return l;
 			} else if (value instanceof Boolean) {
 				JCheckBox check = new JCheckBox();
@@ -280,8 +295,10 @@ public class EventsPopup extends JDialog {
 				check.setSelected((Boolean) value);
 				if (col != 5)
 					check.setEnabled(false);
-				if (col == 2 && events.getJSONObject(row).has("comments"))
-					check.setToolTipText(events.getJSONObject(row).getString("comments"));
+				if (col == 2 && event.has("comments"))
+					check.setToolTipText(event.getString("comments"));
+				if (toHighlight)
+					check.setBackground(GREEN_BACKGROUND);
 				return check;
 			} else
 				throw new IllegalStateException("Cell should contain a boolean or a string");

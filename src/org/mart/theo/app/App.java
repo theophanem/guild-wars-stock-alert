@@ -93,6 +93,10 @@ public class App {
 		frame.changeUpdateDateLabel(sdf.format(lastUpdate));
 	}
 
+	public static List<JSONObject> getCurrentEvents() {
+		return currentEvents;
+	}
+
 	private static void initTray() {
 		if (SystemTray.isSupported()) {
 			Image image = Toolkit.getDefaultToolkit().createImage(App.class.getResource("/img/margrid_64x64.png"));
