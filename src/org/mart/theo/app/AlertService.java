@@ -62,7 +62,7 @@ public class AlertService extends Thread {
 			JSONObject ref = refs.getJSONObject(i);
 			String key = ref.getString("key");
 
-			String id = Integer.toString(ref.getInt("id"));
+			String id = ref.getString("id");
 			JSONObject fetchedDataBuy = fetchedData.getJSONObject("buy").has(id)
 					? fetchedData.getJSONObject("buy").getJSONObject(id)
 					: null;

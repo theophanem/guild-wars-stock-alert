@@ -2,140 +2,160 @@
     "lang": "fr",
     "refs": [
         {
-            "id": 921,
+            "id": "0b0399",
+            "idLegacy": 921,
             "key": "bones",
             "label": "Os",
             "sellingPoint": 700,
             "isAlert": true
         },
         {
-            "id": 925,
+            "id": "0b039d",
+            "idLegacy": 925,
             "key": "cloth",
             "label": "Rouleaux de tissu",
             "sellingPoint": 9999,
             "isAlert": false
         },
         {
-            "id": 929,
+            "id": "0b03a1",
+            "idLegacy": 929,
             "key": "dust",
             "label": "Poussière",
             "sellingPoint": 1100,
             "isAlert": true
         },
         {
-            "id": 933,
+            "id": "0b03a5",
+            "idLegacy": 933,
             "key": "feathers",
             "label": "Plumes",
             "sellingPoint": 1200,
             "isAlert": true
         },
         {
-            "id": 934,
+            "id": "0b03a6",
+            "idLegacy": 934,
             "key": "fibers",
             "label": "Fibres végétales",
             "sellingPoint": 1200,
             "isAlert": true
         },
         {
-            "id": 910,
+            "id": "0b03ac",
+            "idLegacy": 910,
             "key": "hide",
             "label": "Peaux tannées",
             "sellingPoint": 9999,
             "isAlert": false
         },
         {
-            "id": 946,
+            "id": "0b03b2",
+            "idLegacy": 946,
             "key": "wood",
             "label": "Panches de bois",
             "sellingPoint": 9999,
             "isAlert": false
         },
         {
-            "id": 948,
+            "id": "0b03b4",
+            "idLegacy": 948,
             "key": "iron",
             "label": "Lingots de fer",
             "sellingPoint": 1100,
             "isAlert": true
         },
         {
-            "id": 953,
+            "id": "0b03b9",
+            "idLegacy": 953,
             "key": "scales",
             "label": "Écailles",
             "sellingPoint": 1600,
             "isAlert": true
         },
         {
-            "id": 954,
+            "id": "0b03ba",
+            "idLegacy": 954,
             "key": "chitin",
             "label": "Chitine",
             "sellingPoint": 9999,
             "isAlert": false
         },
         {
-            "id": 955,
+            "id": "0b03bb",
+            "idLegacy": 955,
             "key": "granite",
             "label": "Granite",
             "sellingPoint": 450,
             "isAlert": true
         },
         {
-            "id": 926,
+            "id": "0b039e",
+            "idLegacy": 926,
             "key": "linen",
             "label": "Rouleaux de lin",
             "sellingPoint": 1200,
             "isAlert": true
         },
         {
-            "id": 927,
+            "id": "0b039f",
+            "idLegacy": 927,
             "key": "damask",
             "label": "Rouleaux de Damas",
             "sellingPoint": 1700,
             "isAlert": true
         },
         {
-            "id": 928,
+            "id": "0b03a0",
+            "idLegacy": 928,
             "key": "silk",
             "label": "Rouleaux de soie",
             "sellingPoint": 9999,
             "isAlert": false
         },
         {
-            "id": 939,
+            "id": "0b03ab",
+            "idLegacy": 939,
             "key": "glassVial",
             "label": "Fiole de verre",
             "sellingPoint": 1100,
             "isAlert": true
         },
         {
-            "id": 943,
+            "id": "0b03af",
+            "idLegacy": 943,
             "key": "elonianLeather",
             "label": "Carré de cuir élonien",
             "sellingPoint": 1200,
             "isAlert": true
         },
         {
-            "id": 944,
+            "id": "0b03b0",
+            "idLegacy": 944,
             "key": "ink",
             "label": "Fiole d'encre",
             "sellingPoint": 1500,
             "isAlert": true
         },
         {
-            "id": 950,
+            "id": "0b03b6",
+            "idLegacy": 950,
             "key": "deldrimor",
             "label": "Acier de Deldrimor",
             "sellingPoint": 2600,
             "isAlert": true
         },
         {
-            "id": 952,
+            "id": "0b03b8",
+            "idLegacy": 952,
             "key": "vellum",
             "label": "Rouleau de vélin",
             "sellingPoint": 1000,
             "isAlert": true
         },
         {
-            "id": 956,
+            "id": "0b03bc",
+            "idLegacy": 956,
             "key": "spiritwood",
             "label": "Bois-esprit",
             "sellingPoint": 9999,
