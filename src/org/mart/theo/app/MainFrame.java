@@ -61,6 +61,8 @@ public class MainFrame extends JFrame {
 	private JButton saveButton;
 	private JButton resetButton;
 	private JLabel lastUpdate;
+	private JCheckBox alertEnabledBox;
+	private boolean alertEnabled;
 	private EventsPopup eventsPopup;
 
 	public Map<String, Map<String, JComponent>> key2type2component = new HashMap<>();
@@ -132,6 +134,20 @@ public class MainFrame extends JFrame {
 		headerPanel.add(new JLabel("    "));
 		headerPanel.add(saveButton);
 		container.add(headerPanel);
+
+		JPanel enabledCheckboxPanel = new JPanel();
+		alertEnabledBox = new JCheckBox("Activer la mise à jour automatique des prix (toutes les 10 minutes)");
+		setAlertEnabled(App.getAlertEnabled());
+		alertEnabledBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent event) {
+				JCheckBox cb = (JCheckBox) event.getSource();
+				setAlertEnabled(cb.isSelected());
+				setFormChanged(true);
+			}
+		});
+		enabledCheckboxPanel.add(alertEnabledBox);
+		container.add(enabledCheckboxPanel);
 
 		// ----------- body -----------
 		JPanel bodyPanel = new JPanel();
@@ -263,6 +279,15 @@ public class MainFrame extends JFrame {
 
 	public void changeUpdateDateLabel(String newDate) {
 		lastUpdate.setText(newDate);
+	}
+
+	public boolean getAlertEnabled() {
+		return alertEnabled;
+	}
+
+	public void setAlertEnabled(boolean alertEnabled) {
+		this.alertEnabled = alertEnabled;
+		this.alertEnabledBox.setSelected(alertEnabled);
 	}
 
 	public ImageIcon getScaledImage(String resourcePath, double scale) throws IOException {

@@ -38,6 +38,7 @@ public class App {
 	private static File workingDirectory;
 	private static Date lastUpdate = null;
 	public final static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY 'à' HH:mm:ss", Locale.FRENCH);
+	public static boolean alertEnabled;
 	private static List<JSONObject> currentEvents = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException {
@@ -93,6 +94,17 @@ public class App {
 		frame.changeUpdateDateLabel(sdf.format(lastUpdate));
 	}
 
+	public static boolean getAlertEnabled() {
+		return alertEnabled;
+	}
+
+	public static void setAlertEnabled(boolean alertEnabled) {
+		App.alertEnabled = alertEnabled;
+		if (AlertService.isInitialized()) {
+			AlertService.getInstance().setActive(alertEnabled);
+		}
+	}
+
 	public static List<JSONObject> getCurrentEvents() {
 		return currentEvents;
 	}
@@ -120,8 +132,22 @@ public class App {
 			byte[] encoded = Files.readAllBytes(configFile.toPath());
 			String content = new String(encoded, StandardCharsets.UTF_8);
 			JSONObject jsonObject = new JSONObject(content);
+			boolean alertEnabled = true;
+			if (jsonObject.has("alertEnabled")) {
+				alertEnabled = jsonObject.getBoolean("alertEnabled");
+			} else {
+				jsonObject.put("alertEnabled", true);
+				rootLogger.info("Key \"alertEnabled\" does not exist. Adding to the config file.");
+				try (OutputStreamWriter writer = new OutputStreamWriter(
+						new FileOutputStream(new File(workingDirectory, "config.json"), false),
+						StandardCharsets.UTF_8)) {
+					writer.write(jsonObject.toString());
+					writer.close();
+				}
+			}
 			setConfig(jsonObject);
 			setData(jsonObject);
+			setAlertEnabled(alertEnabled);
 		} catch (Exception e) {
 			e.printStackTrace();
 			showErrorWindowAndExitApp("Cannot load settings file");
@@ -130,6 +156,9 @@ public class App {
 
 	public static void saveConfig() throws IOException {
 		JSONObject newConfig = new JSONObject(getConfig().toString());
+
+		setAlertEnabled(frame.getAlertEnabled());
+		newConfig.put("alertEnabled", getAlertEnabled());
 		JSONArray refs = newConfig.getJSONArray("refs");
 		JSONArray dataRefs = getData().getJSONArray("refs");
 		for (int i = 0; i < refs.length(); i++) {

@@ -14,29 +14,35 @@ import org.json.JSONObject;
 
 public class AlertService extends Thread {
 	private static AlertService instance;
+	private static long delta = 600_000l;
+	private static boolean initialized = false;
+	private boolean active = false;
 
 	public static AlertService getInstance() {
 		if (instance == null)
 			instance = new AlertService();
+		initialized = true;
 		return instance;
 	}
 
 	private AlertService() {
 		setName("Alert service");
+		setActive(App.alertEnabled);
 	}
 
 	@Override
 	public void run() {
 		while (isInterrupted() == false) {
 			try {
-				process();
+				if (active)
+					process();
 			} catch (Exception e1) {
 				Thread.currentThread().interrupt();
 				e1.printStackTrace();
 			}
 
 			try {
-				Thread.sleep(60_000l);
+				Thread.sleep(delta);
 			} catch (Throwable t) {
 				interrupt();
 			}
@@ -101,5 +107,15 @@ public class AlertService extends Thread {
 		}
 
 		logger.info("Done fetching data");
+	}
+
+	public void setActive(boolean active) {
+		Logger logger = LogManager.getLogger(AlertService.class);
+		this.active = active;
+		logger.info(active ? "Alert service active" : "Alert service inactive");
+	}
+
+	public static boolean isInitialized() {
+		return initialized;
 	}
 }
