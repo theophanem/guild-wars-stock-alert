@@ -13,10 +13,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.font.TextAttribute;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,10 +25,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -61,21 +59,18 @@ public class EventsPopup extends JDialog {
 	}
 
 	private JPanel container;
+	private JTable table;
 	private JButton saveButton;
 	private JButton resetButton;
 	private JSONArray events;
 
-	public Map<String, Map<String, JComponent>> key2type2component = new HashMap<>();
-
 	public EventsPopup(JFrame frame) throws IOException {
 		super(frame, "Guild Wars Stock Alert - Évènements", true);
-		initialize();
+		initialize(false);
 	}
 
-	public void initialize() throws IOException {
-		InputStream is = App.class.getResourceAsStream("/events.json");
-		String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-		events = new JSONArray(content);
+	public void initialize(boolean turnVisible) throws IOException {
+		events = new JSONArray(App.getEvents().toString());
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setResizable(false);
 
@@ -100,17 +95,17 @@ public class EventsPopup extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String todo = "manage save action";
-				// int result = JOptionPane.showConfirmDialog(container, "Voulez-vous vraiment
-				// écraser la configuration ?",
-				// "Confirmation", JOptionPane.CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-				// if (result == JOptionPane.OK_OPTION) {
-				// try {
-				// App.saveConfig();
-				// } catch (IOException e1) {
-				// e1.printStackTrace();
-				// }
-				// }
+				int result = JOptionPane.showConfirmDialog(container,
+						"Voulez-vous vraiment écraser la configuration des évènements ?", "Confirmation",
+						JOptionPane.CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (result == JOptionPane.OK_OPTION) {
+					try {
+						App.saveEvents(events);
+						setFormChanged(false);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		resetButton = new JButton("Réinitialiser");
@@ -118,18 +113,21 @@ public class EventsPopup extends JDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String todo = "manage reset action";
-				// int result = JOptionPane.showConfirmDialog(container,
-				// "Voulez-vous vraiment réinitialiser la configuration à son état par défaut
-				// ?", "Confirmation",
-				// JOptionPane.CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-				// if (result == JOptionPane.OK_OPTION) {
-				// try {
-				// App.resetConfig();
-				// } catch (IOException e1) {
-				// e1.printStackTrace();
-				// }
-				// }
+				int result = JOptionPane.showConfirmDialog(container,
+						"Voulez-vous vraiment réinitialiser la configuration des évènements à son état par défaut ?",
+						"Confirmation", JOptionPane.CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (result == JOptionPane.OK_OPTION) {
+					try {
+						App.resetEvents();
+						container.removeAll();
+						initialize(true);
+						String todo = "fix disappearance of window content";
+						container.revalidate();
+						container.repaint();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 		headerPanel.add(resetButton);
@@ -150,10 +148,10 @@ public class EventsPopup extends JDialog {
 			row[2] = event.getBoolean("hasInterestingItems");
 			row[3] = event.getString("from");
 			row[4] = event.getString("to");
-			row[5] = event.getBoolean("hasInterestingItems");
+			row[5] = event.has("isAlert") ? event.getBoolean("isAlert") : event.getBoolean("hasInterestingItems");
 			model.addRow(row);
 		}
-		JTable table = new JTable(model);
+		table = new JTable(model);
 		table.setShowGrid(false);
 		table.setCellSelectionEnabled(false);
 		table.setRowHeight(30);
@@ -179,6 +177,29 @@ public class EventsPopup extends JDialog {
 					} catch (URISyntaxException e1) {
 						e1.printStackTrace();
 					}
+				else if (col == 2) {
+					if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+						JSONObject event = events.getJSONObject(row);
+						String initValue = event.has("comments") ? event.getString("comments") : null;
+						String result = (String) JOptionPane.showInputDialog(container,
+								"Objets d'intérêt pour " + event.getString("label"),
+								"Guild Wars Stock Alert - Objets d'intérêt", JOptionPane.PLAIN_MESSAGE, null, null,
+								initValue);
+
+						if (result != null) {
+							event.put("comments", result.trim());
+							Boolean hasInterestingItems = !"".equals(result.trim());
+							event.put("hasInterestingItems", hasInterestingItems);
+							table.getModel().setValueAt(hasInterestingItems, row, 2);
+//							repaint();
+//							container.repaint();
+							table.repaint();
+
+							String todo = "fix checkbox in column 2 in case of change of comments";
+							setFormChanged(true);
+						}
+					}
+				}
 			}
 
 		});
@@ -208,7 +229,7 @@ public class EventsPopup extends JDialog {
 
 		pack();
 		setLocationRelativeTo(null);
-		setVisible(false);
+		setVisible(turnVisible);
 	}
 
 	private static void open(URI uri) {
@@ -252,7 +273,8 @@ public class EventsPopup extends JDialog {
 				@SuppressWarnings("unchecked")
 				Vector<Boolean> rowData = (Vector<Boolean>) getDataVector().get(row);
 				rowData.set(5, (boolean) aValue);
-//				events.getJSONObject(row).put("isAlert", aValue);
+				events.getJSONObject(row).put("isAlert", aValue);
+				saveButton.setEnabled(true);
 				fireTableCellUpdated(row, column);
 			}
 		}
@@ -295,8 +317,10 @@ public class EventsPopup extends JDialog {
 				check.setSelected((Boolean) value);
 				if (col != 5)
 					check.setEnabled(false);
-				if (col == 2 && event.has("comments"))
-					check.setToolTipText(event.getString("comments"));
+				if (col == 2) {
+					if (event.has("comments"))
+						check.setToolTipText(event.getString("comments"));
+				}
 				if (toHighlight)
 					check.setBackground(GREEN_BACKGROUND);
 				return check;

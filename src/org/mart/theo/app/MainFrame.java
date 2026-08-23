@@ -62,6 +62,7 @@ public class MainFrame extends JFrame {
 	private JButton resetButton;
 	private JLabel lastUpdate;
 	private JCheckBox alertEnabledBox;
+	private JButton refreshButton;
 	private boolean alertEnabled;
 	private EventsPopup eventsPopup;
 
@@ -135,6 +136,7 @@ public class MainFrame extends JFrame {
 		headerPanel.add(saveButton);
 		container.add(headerPanel);
 
+		// ----------- automatic and manual price refreshment inputs -----------
 		JPanel enabledCheckboxPanel = new JPanel();
 		alertEnabledBox = new JCheckBox("Activer la mise à jour automatique des prix (toutes les 10 minutes)");
 		setAlertEnabled(App.getAlertEnabled());
@@ -146,7 +148,23 @@ public class MainFrame extends JFrame {
 				setFormChanged(true);
 			}
 		});
+
+		refreshButton = new JButton("Rafraîchir prix");
+		refreshButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					AlertService.getInstance().process();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+		});
+
 		enabledCheckboxPanel.add(alertEnabledBox);
+		enabledCheckboxPanel.add(new JLabel("    "));
+		enabledCheckboxPanel.add(refreshButton);
+
 		container.add(enabledCheckboxPanel);
 
 		// ----------- body -----------

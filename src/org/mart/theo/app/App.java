@@ -34,6 +34,7 @@ public class App {
 	public static Logger rootLogger = null;
 	private static JSONObject config = null;
 	private static JSONObject data = null;
+	private static JSONArray events = null;
 	public static MainFrame frame = null;
 	private static File workingDirectory;
 	private static Date lastUpdate = null;
@@ -60,6 +61,7 @@ public class App {
 		workingDirectory.mkdir();
 
 		loadConfig();
+		loadEvents();
 		initTray();
 		checkEvent();
 
@@ -83,6 +85,14 @@ public class App {
 
 	public static void setData(JSONObject data) {
 		App.data = data;
+	}
+
+	public static JSONArray getEvents() {
+		return events;
+	}
+
+	public static void setEvents(JSONArray events) {
+		App.events = events;
 	}
 
 	public static Date getLastUpdate() {
@@ -235,16 +245,97 @@ public class App {
 				JOptionPane.INFORMATION_MESSAGE);
 	}
 
+	public static void loadEvents() {
+		try {
+			File eventsFile = new File(workingDirectory, "events.json");
+			if (eventsFile.createNewFile()) {
+				InputStream is = App.class.getResourceAsStream("/events.json");
+				String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+				FileWriter writer = new FileWriter(eventsFile, false);
+				writer.write(content);
+				writer.close();
+			}
+			byte[] encoded = Files.readAllBytes(eventsFile.toPath());
+			String content = new String(encoded, StandardCharsets.UTF_8);
+			JSONArray jsonArray = new JSONArray(content);
+
+			setEvents(jsonArray);
+		} catch (Exception e) {
+			e.printStackTrace();
+			showErrorWindowAndExitApp("Cannot load events file");
+		}
+	}
+
+	public static void saveEvents(JSONArray eventsToSave) throws IOException {
+		JSONArray newEvents = new JSONArray(getEvents().toString());
+
+		for (int i = 0; i < newEvents.length(); i++) {
+			JSONObject event = newEvents.getJSONObject(i);
+			String key = event.getString("key");
+			JSONObject dataEvent = Helper.getJSONObjectFromKeyOrNull(eventsToSave, key);
+			boolean isAlert = dataEvent.has("isAlert") ? dataEvent.getBoolean("isAlert")
+					: dataEvent.getBoolean("hasInterestingItems");
+			event.put("isAlert", isAlert);
+
+			String comments = dataEvent.has("comments") ? dataEvent.getString("comments") : null;
+			event.put("comments", comments);
+
+			boolean hasInterestingItems = dataEvent.getBoolean("hasInterestingItems");
+			event.put("hasInterestingItems", hasInterestingItems);
+		}
+
+		try (OutputStreamWriter writer = new OutputStreamWriter(
+				new FileOutputStream(new File(workingDirectory, "events.json"), false), StandardCharsets.UTF_8)) {
+			writer.write(newEvents.toString());
+			writer.close();
+		}
+		setEvents(newEvents);
+
+		JOptionPane.showMessageDialog(frame, "Succès de la sauvegarde", "Évènements sauvegardés",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
+	public static void resetEvents() throws IOException {
+		JSONArray newEvents = new JSONArray(getEvents().toString());
+
+		InputStream is = App.class.getResourceAsStream("/events.json");
+		String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+		JSONArray defaultEvents = new JSONArray(content);
+		for (int i = 0; i < newEvents.length(); i++) {
+			JSONObject event = newEvents.getJSONObject(i);
+			String key = event.getString("key");
+			JSONObject defaultEvent = Helper.getJSONObjectFromKeyOrNull(defaultEvents, key);
+			boolean isAlert = defaultEvent.getBoolean("hasInterestingItems");
+			event.put("isAlert", isAlert);
+
+			String comments = defaultEvent.has("comments") ? defaultEvent.getString("comments") : null;
+			if (comments == null || comments.trim().isEmpty())
+				event.remove("comments");
+			else
+				event.put("comments", comments);
+
+			boolean hasInterestingItems = defaultEvent.getBoolean("hasInterestingItems");
+			event.put("hasInterestingItems", hasInterestingItems);
+		}
+		try (OutputStreamWriter writer = new OutputStreamWriter(
+				new FileOutputStream(new File(workingDirectory, "events.json"), false), StandardCharsets.UTF_8)) {
+			writer.write(newEvents.toString());
+			writer.close();
+		}
+		setEvents(newEvents);
+
+		JOptionPane.showMessageDialog(frame, "Succès de la réinitialisation", "Évènements réinitialisés",
+				JOptionPane.INFORMATION_MESSAGE);
+	}
+
 	public static void showErrorWindowAndExitApp(String message) {
 		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog", JOptionPane.ERROR_MESSAGE);
 		System.exit(0);
 	}
 
 	private static void checkEvent() throws IOException {
-		InputStream is = App.class.getResourceAsStream("/events.json");
-		String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-		JSONArray events = new JSONArray(content);
 		Calendar today = Calendar.getInstance();
+		List<JSONObject> eventsToNotify = new ArrayList<>();
 		int currentYear = today.get(Calendar.YEAR);
 		for (int i = 0; i < events.length(); i++) {
 			JSONObject event = events.getJSONObject(i);
@@ -266,17 +357,22 @@ public class App {
 						59);
 			}
 
-			if (from.before(today) && today.before(to))
+			if (from.before(today) && today.before(to)) {
 				currentEvents.add(event);
+				boolean notify = event.has("isAlert") ? event.getBoolean("isAlert")
+						: event.getBoolean("hasInterestingItems");
+				if (notify)
+					eventsToNotify.add(event);
+			}
 		}
 
-		if (currentEvents.size() > 0) {
-			if (currentEvents.size() == 1)
+		if (eventsToNotify.size() > 0) {
+			if (eventsToNotify.size() == 1)
 				tray.displayMessage("Guild Wars Event Alert",
-						"Évènement en cours : " + currentEvents.get(0).getString("label"), MessageType.INFO);
+						"Évènement en cours : " + eventsToNotify.get(0).getString("label"), MessageType.INFO);
 			else {
 				String message = "Évènements en cours :";
-				for (JSONObject e : currentEvents)
+				for (JSONObject e : eventsToNotify)
 					message += "\n - " + e.getString("label");
 				tray.displayMessage("Guild Wars Event Alert", message, MessageType.INFO);
 			}
