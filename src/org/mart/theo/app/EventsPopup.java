@@ -66,11 +66,11 @@ public class EventsPopup extends JDialog {
 
 	public EventsPopup(JFrame frame) throws IOException {
 		super(frame, "Guild Wars Stock Alert - Évènements", true);
-		initialize(false);
+		initialize();
 	}
 
-	public void initialize(boolean turnVisible) throws IOException {
-		events = new JSONArray(App.getEvents().toString());
+	public void initialize() throws IOException {
+		initEvents();
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setResizable(false);
 
@@ -119,11 +119,17 @@ public class EventsPopup extends JDialog {
 				if (result == JOptionPane.OK_OPTION) {
 					try {
 						App.resetEvents();
-						container.removeAll();
-						initialize(true);
-						String todo = "fix disappearance of window content";
-						container.revalidate();
-						container.repaint();
+						initEvents();
+						EventTableModel model = (EventTableModel) table.getModel();
+						for (int i = 0; i < events.length(); i++) {
+							JSONObject event = events.getJSONObject(i);
+							boolean hasInterestingItems = event.getBoolean("hasInterestingItems");
+							boolean isAlert = event.has("isAlert") ? event.getBoolean("isAlert")
+									: event.getBoolean("hasInterestingItems");
+							model.setValueAt(hasInterestingItems, i, 2);
+							model.setValueAt(isAlert, i, 5);
+						}
+						setFormChanged(false);
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -178,7 +184,7 @@ public class EventsPopup extends JDialog {
 						e1.printStackTrace();
 					}
 				else if (col == 2) {
-					if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
+					if (e.getButton() == MouseEvent.BUTTON1) {
 						JSONObject event = events.getJSONObject(row);
 						String initValue = event.has("comments") ? event.getString("comments") : null;
 						String result = (String) JOptionPane.showInputDialog(container,
@@ -191,12 +197,6 @@ public class EventsPopup extends JDialog {
 							Boolean hasInterestingItems = !"".equals(result.trim());
 							event.put("hasInterestingItems", hasInterestingItems);
 							table.getModel().setValueAt(hasInterestingItems, row, 2);
-//							repaint();
-//							container.repaint();
-							table.repaint();
-
-							String todo = "fix checkbox in column 2 in case of change of comments";
-							setFormChanged(true);
 						}
 					}
 				}
@@ -207,10 +207,15 @@ public class EventsPopup extends JDialog {
 		table.addMouseMotionListener(new MouseMotionAdapter() {
 			public void mouseMoved(MouseEvent e) {
 				int col = table.columnAtPoint(e.getPoint());
-				if (col == 0 || col == 5)
-					setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-				else
-					setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				switch (col) {
+					case 0:
+					case 2:
+					case 5:
+						setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+						break;
+					default:
+						setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+				}
 			}
 		});
 
@@ -229,7 +234,11 @@ public class EventsPopup extends JDialog {
 
 		pack();
 		setLocationRelativeTo(null);
-		setVisible(turnVisible);
+		setVisible(false);
+	}
+
+	private void initEvents() {
+		events = new JSONArray(App.getEvents().toString());
 	}
 
 	private static void open(URI uri) {
@@ -255,9 +264,9 @@ public class EventsPopup extends JDialog {
 		public Class<?> getColumnClass(int columnIndex) {
 			Class<?> clazz = String.class;
 			switch (columnIndex) {
-			case 1, 2, 5:
-				clazz = Boolean.class;
-				break;
+				case 1, 2, 5:
+					clazz = Boolean.class;
+					break;
 			}
 			return clazz;
 		}
@@ -272,9 +281,10 @@ public class EventsPopup extends JDialog {
 			if (aValue instanceof Boolean) {
 				@SuppressWarnings("unchecked")
 				Vector<Boolean> rowData = (Vector<Boolean>) getDataVector().get(row);
-				rowData.set(5, (boolean) aValue);
-				events.getJSONObject(row).put("isAlert", aValue);
-				saveButton.setEnabled(true);
+				rowData.set(column, (boolean) aValue);
+				if (column == 5)
+					events.getJSONObject(row).put("isAlert", aValue);
+				setFormChanged(true);
 				fireTableCellUpdated(row, column);
 			}
 		}
@@ -315,10 +325,11 @@ public class EventsPopup extends JDialog {
 				JCheckBox check = new JCheckBox();
 				check.setHorizontalAlignment(JCheckBox.CENTER);
 				check.setSelected((Boolean) value);
-				if (col != 5)
+				if (col == 1)
 					check.setEnabled(false);
-				if (col == 2) {
-					if (event.has("comments"))
+				else if (col == 2) {
+					if (event.has("comments") && event.getString("comments") != null
+							&& !event.getString("comments").trim().isEmpty())
 						check.setToolTipText(event.getString("comments"));
 				}
 				if (toHighlight)
