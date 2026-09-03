@@ -1,6 +1,7 @@
 package org.mart.theo.app;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Image;
@@ -24,8 +25,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -83,7 +86,7 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 //		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		final int rows = refs.length() + 1;
+		final int rows = refs.length();
 		final int columns = 5;
 
 		container = new JPanel();
@@ -167,13 +170,12 @@ public class MainFrame extends JFrame {
 
 		container.add(enabledCheckboxPanel);
 
-		// ----------- body -----------
-		JPanel bodyPanel = new JPanel();
-		bodyPanel.setLayout(new GridLayout(rows, columns));
-		bodyPanel.setVisible(true);
-		bodyPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
-
 		// ----------- table header -----------
+		JPanel bodyPanel = new JPanel();
+		// bodyPanel.setSize(new Dimension(650, 32));
+		bodyPanel.setLayout(new GridLayout(1, columns));
+		bodyPanel.setVisible(true);
+		bodyPanel.setBorder(new EmptyBorder(10, 0, 10, 16));
 		bodyPanel.add(new JLabel());
 		JLabel materialLabel = new JLabel("Type");
 		materialLabel.setFont(HEADER_FONT);
@@ -187,18 +189,27 @@ public class MainFrame extends JFrame {
 		JLabel alertLabel = new JLabel("Alerte");
 		alertLabel.setFont(HEADER_FONT);
 		bodyPanel.add(alertLabel);
+		container.add(bodyPanel);
 
 		// ----------- table body -----------
+		JPanel tableBodyPanel = new JPanel();
+		JScrollPane scrollFrame = new JScrollPane(tableBodyPanel);
+		tableBodyPanel.setAutoscrolls(true);
+		scrollFrame.setPreferredSize(new Dimension(700, 700));
+
+		tableBodyPanel.setLayout(new GridLayout(rows, columns));
+		tableBodyPanel.setVisible(true);
+		tableBodyPanel.setBorder(new EmptyBorder(0, 0, 10, 0));
 		for (int i = 0; i < refs.length(); i++) {
 			JSONObject ref = refs.getJSONObject(i);
 			String key = ref.getString("key");
 			ImageIcon icon = getScaledImage("/img/materials/" + key + ".png", 0.6d);
-			bodyPanel.add(new JLabel(icon));
+			tableBodyPanel.add(new JLabel(icon));
 
 			JLabel name = new JLabel(ref.getString("label"));
 			name.setName(key);
 			name.setFont(CELL_FONT);
-			bodyPanel.add(name);
+			tableBodyPanel.add(name);
 			key2type2component.put(key, new HashMap<String, JComponent>());
 			key2type2component.get(key).put(LABEL_KEY, name);
 
@@ -206,7 +217,7 @@ public class MainFrame extends JFrame {
 			prices.setEditable(false);
 			prices.setOpaque(false);
 			prices.setFont(CELL_FONT);
-			bodyPanel.add(prices);
+			tableBodyPanel.add(prices);
 			key2type2component.get(key).put(PRICES_KEY, prices);
 
 			String sellingPoint = "";
@@ -252,11 +263,12 @@ public class MainFrame extends JFrame {
 					ref.put("sellingPoint", text.isEmpty() ? JSONObject.NULL : Integer.parseInt(text));
 				}
 			});
-			bodyPanel.add(priceThreshold);
+			tableBodyPanel.add(priceThreshold);
 			key2type2component.get(key).put(THRESHOLD_KEY, priceThreshold);
 
 			JCheckBox alertCheck = new JCheckBox();
 			alertCheck.setSelected(ref.getBoolean("isAlert"));
+			alertCheck.setHorizontalAlignment(SwingConstants.CENTER);
 			alertCheck.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent event) {
@@ -265,10 +277,10 @@ public class MainFrame extends JFrame {
 					setFormChanged(true);
 				}
 			});
-			bodyPanel.add(alertCheck);
+			tableBodyPanel.add(alertCheck);
 			key2type2component.get(key).put(ALERT_KEY, alertCheck);
 		}
-		container.add(bodyPanel);
+		container.add(scrollFrame);
 
 		JPanel updatedAtPanel = new JPanel();
 		updatedAtPanel.setVisible(true);
