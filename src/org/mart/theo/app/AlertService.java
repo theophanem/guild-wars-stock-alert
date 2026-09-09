@@ -27,7 +27,13 @@ public class AlertService extends Thread {
 
 	private AlertService() {
 		setName("Alert service");
-		setActive(App.alertEnabled);
+		setActive(App.getAlertEnabled());
+		if (!active)
+			try {
+				process();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 	}
 
 	@Override
