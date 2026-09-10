@@ -40,6 +40,7 @@ public class App {
 	private static Date lastUpdate = null;
 	public final static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/YYYY 'à' HH:mm:ss", Locale.FRENCH);
 	public static boolean alertEnabled;
+	public static int dataFetchInterval;
 	private static List<JSONObject> currentEvents = new ArrayList<>();
 
 	public static void main(String[] args) throws IOException {
@@ -109,10 +110,21 @@ public class App {
 	}
 
 	public static void setAlertEnabled(boolean alertEnabled) {
+		boolean changed = alertEnabled != App.alertEnabled;
 		App.alertEnabled = alertEnabled;
-		if (AlertService.isInitialized()) {
+		if (AlertService.isInitialized() && changed) {
 			AlertService.getInstance().setActive(alertEnabled);
 		}
+	}
+
+	public static int getDataFetchInterval() {
+		return dataFetchInterval;
+	}
+
+	public static void setDataFetchInterval(int dataFetchInterval) {
+		if (dataFetchInterval <= 0)
+			dataFetchInterval = MainFrame.DEFAULT_INTERVAL_VALUE;
+		App.dataFetchInterval = dataFetchInterval;
 	}
 
 	public static List<JSONObject> getCurrentEvents() {
@@ -155,9 +167,11 @@ public class App {
 					writer.close();
 				}
 			}
+			int dataFetchInterval = jsonObject.getInt("dataFetchInterval");
 			setConfig(jsonObject);
 			setData(jsonObject);
 			setAlertEnabled(alertEnabled);
+			setDataFetchInterval(dataFetchInterval);
 		} catch (Exception e) {
 			e.printStackTrace();
 			showErrorWindowAndExitApp("Cannot load settings file");
@@ -169,6 +183,9 @@ public class App {
 
 		setAlertEnabled(frame.getAlertEnabled());
 		newConfig.put("alertEnabled", getAlertEnabled());
+
+		setDataFetchInterval(frame.getDataFetchInterval());
+		newConfig.put("dataFetchInterval", getDataFetchInterval());
 		JSONArray refs = newConfig.getJSONArray("refs");
 		JSONArray dataRefs = getData().getJSONArray("refs");
 		for (int i = 0; i < refs.length(); i++) {
@@ -207,6 +224,17 @@ public class App {
 		InputStream is = App.class.getResourceAsStream("/defaultConfig.json");
 		String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
 		JSONObject defaultConfig = new JSONObject(content);
+
+		boolean alertEnabled = defaultConfig.getBoolean("alertEnabled");
+		setAlertEnabled(alertEnabled);
+		frame.setAlertEnabled(alertEnabled);
+		newConfig.put("alertEnabled", alertEnabled);
+
+		int dataFetchInterval = defaultConfig.getInt("dataFetchInterval");
+		setDataFetchInterval(dataFetchInterval);
+		frame.setDataFetchInterval(dataFetchInterval);
+		newConfig.put("dataFetchInterval", dataFetchInterval);
+
 		for (int i = 0; i < refs.length(); i++) {
 			JSONObject ref = refs.getJSONObject(i);
 			String key = ref.getString("key");

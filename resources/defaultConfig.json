@@ -1,6 +1,7 @@
 {
     "lang": "fr",
 	"alertEnabled": true,
+	"dataFetchInterval": 10,
     "refs": [
         {
             "id": "0b0399",

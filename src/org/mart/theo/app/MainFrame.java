@@ -45,6 +45,8 @@ public class MainFrame extends JFrame {
 	public static final String THRESHOLD_KEY = "threshold";
 	public static final String ALERT_KEY = "alert";
 	public static final int MAX_INPUT_CHARACTERS = 4;
+	public static final int MAX_INTERVAL_INPUT_CHARACTERS = 3;
+	public static final int DEFAULT_INTERVAL_VALUE = 10;
 	public static final Color GREEN_TEXT = new Color(0, 175, 0);
 	public static final Color REGULAR_TEXT = new Color(51, 51, 51);
 	public static final Font HEADER_FONT = new Font("Arial", Font.BOLD, 14);
@@ -65,9 +67,11 @@ public class MainFrame extends JFrame {
 	private JButton resetButton;
 	private JLabel lastUpdate;
 	private JCheckBox alertEnabledBox;
+	private JTextField dataFetchIntervalInput;
 	private JButton refreshButton;
 	private boolean alertEnabled;
 	private EventsPopup eventsPopup;
+	private int dataFetchInterval;
 
 	public Map<String, Map<String, JComponent>> key2type2component = new HashMap<>();
 
@@ -140,8 +144,9 @@ public class MainFrame extends JFrame {
 		container.add(headerPanel);
 
 		// ----------- automatic and manual price refreshment inputs -----------
+		JPanel settingsPanel = new JPanel();
 		JPanel enabledCheckboxPanel = new JPanel();
-		alertEnabledBox = new JCheckBox("Activer la mise à jour automatique des prix (toutes les 10 minutes)");
+		alertEnabledBox = new JCheckBox();
 		setAlertEnabled(App.getAlertEnabled());
 		alertEnabledBox.addActionListener(new ActionListener() {
 			@Override
@@ -151,6 +156,66 @@ public class MainFrame extends JFrame {
 				setFormChanged(true);
 			}
 		});
+		alertEnabledBox.setBorder(new EmptyBorder(0, 0, 0, 0));
+		JLabel checkboxLabel = new JLabel("Activer la mise à jour automatique des prix (toutes les");
+		JLabel checkboxLabel2 = new JLabel("minutes)");
+
+		dataFetchIntervalInput = new JTextField();
+		setDataFetchInterval(App.getDataFetchInterval());
+		dataFetchIntervalInput.setPreferredSize(new Dimension(30, 30));
+		AbstractDocument intervalDocument = (AbstractDocument) dataFetchIntervalInput.getDocument();
+		intervalDocument.setDocumentFilter(new DocumentFilter() {
+			public void replace(FilterBypass fb, int offs, int length, String str, AttributeSet a)
+					throws BadLocationException {
+				String text = fb.getDocument().getText(0, fb.getDocument().getLength());
+				text += str;
+				if ((fb.getDocument().getLength() + str.length() - length) <= MAX_INTERVAL_INPUT_CHARACTERS
+						&& text.matches("[0-9]+")) {
+					super.replace(fb, offs, length, str, a);
+					setFormChanged(true);
+					text = fb.getDocument().getText(0, fb.getDocument().getLength());
+					int intValue = Integer.parseInt(text);
+					if (intValue > 0)
+						dataFetchInterval = intValue;
+					else
+						dataFetchIntervalInput.setText(Integer.toString(DEFAULT_INTERVAL_VALUE));
+				} else {
+					Toolkit.getDefaultToolkit().beep();
+				}
+			}
+
+			public void insertString(FilterBypass fb, int offs, String str, AttributeSet a)
+					throws BadLocationException {
+				String text = fb.getDocument().getText(0, fb.getDocument().getLength());
+				text += str;
+				if ((fb.getDocument().getLength() + str.length()) <= MAX_INTERVAL_INPUT_CHARACTERS
+						&& text.matches("[0-9]+")) {
+					super.insertString(fb, offs, str, a);
+					setFormChanged(true);
+					text = fb.getDocument().getText(0, fb.getDocument().getLength());
+					int intValue = Integer.parseInt(text);
+					if (intValue > 0)
+						dataFetchInterval = intValue;
+					else
+						dataFetchIntervalInput.setText(Integer.toString(DEFAULT_INTERVAL_VALUE));
+				} else {
+					Toolkit.getDefaultToolkit().beep();
+				}
+			}
+
+			public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+				super.remove(fb, offset, length);
+				setFormChanged(true);
+				String text = fb.getDocument().getText(0, fb.getDocument().getLength());
+				String newValue = text.isEmpty() ? Integer.toString(DEFAULT_INTERVAL_VALUE) : text;
+				dataFetchIntervalInput.setText(newValue);
+			}
+		});
+
+		enabledCheckboxPanel.add(alertEnabledBox);
+		enabledCheckboxPanel.add(checkboxLabel);
+		enabledCheckboxPanel.add(dataFetchIntervalInput);
+		enabledCheckboxPanel.add(checkboxLabel2);
 
 		refreshButton = new JButton("Rafraîchir prix");
 		refreshButton.addActionListener(new ActionListener() {
@@ -164,11 +229,11 @@ public class MainFrame extends JFrame {
 			}
 		});
 
-		enabledCheckboxPanel.add(alertEnabledBox);
-		enabledCheckboxPanel.add(new JLabel("    "));
-		enabledCheckboxPanel.add(refreshButton);
+		settingsPanel.add(enabledCheckboxPanel);
+		settingsPanel.add(new JLabel("    "));
+		settingsPanel.add(refreshButton);
 
-		container.add(enabledCheckboxPanel);
+		container.add(settingsPanel);
 
 		// ----------- table header -----------
 		JPanel bodyPanel = new JPanel();
@@ -318,6 +383,15 @@ public class MainFrame extends JFrame {
 	public void setAlertEnabled(boolean alertEnabled) {
 		this.alertEnabled = alertEnabled;
 		this.alertEnabledBox.setSelected(alertEnabled);
+	}
+
+	public int getDataFetchInterval() {
+		return dataFetchInterval;
+	}
+
+	public void setDataFetchInterval(int dataFetchInterval) {
+		this.dataFetchInterval = dataFetchInterval;
+		this.dataFetchIntervalInput.setText(Integer.toString(dataFetchInterval));
 	}
 
 	public ImageIcon getScaledImage(String resourcePath, double scale) throws IOException {

@@ -14,7 +14,6 @@ import org.json.JSONObject;
 
 public class AlertService extends Thread {
 	private static AlertService instance;
-	private static long delta = 600_000l;
 	private static boolean initialized = false;
 	private boolean active = false;
 
@@ -48,7 +47,7 @@ public class AlertService extends Thread {
 			}
 
 			try {
-				Thread.sleep(delta);
+				Thread.sleep(60_000l * App.getDataFetchInterval());
 			} catch (Throwable t) {
 				interrupt();
 			}
